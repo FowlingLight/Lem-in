@@ -1,0 +1,116 @@
+/*
+** lem_in.c for lem_in in /home/b3nja13/Documents/svn/prog_elem/lem-in-2017-horiot_b
+** 
+** Made by benjamin horiot
+** Login   <horiot_b@epitech.net>
+** 
+** Started on  Thu Apr 11 12:58:35 2013 benjamin horiot
+<<<<<<< .mine
+** Last update Wed Apr 17 10:02:13 2013 benjamin horiot
+=======
+** Last update Wed Apr 17 09:40:55 2013 serge laguerre
+>>>>>>> .r37
+*/
+
+#include	"my.h"
+
+t_nodes		*look_for_name_entry(t_nodes *list)
+{
+  t_nodes	*elem;
+
+  elem = list;
+  while (elem != NULL)
+    {
+      if (elem->status == 1)
+	return (elem);
+      elem = elem->next;
+    }
+}
+
+t_nodes		*look_for_name_exit(t_nodes *list)
+{
+  t_nodes	*elem;
+
+  elem = list;
+  while (elem != NULL)
+    {
+      if (elem->status == 2)
+	return (elem);
+      elem = elem->next;
+    }
+}
+
+t_nodes		*get_node(t_graph *g, t_nodes *list, int a)
+{
+  int		b;
+  t_nodes	*elem;
+
+  elem = list;
+  b = 0;
+  while (b != a)
+    {
+      elem = elem->next;
+      b += 1;
+    }
+  return (elem);
+}
+
+t_nodes		*parcours_graph(t_info *s, t_graph *g, t_nodes *list, t_nodes *elem)
+{
+  t_nodes	*elem_tmp;
+  int		save;
+  int		a;
+  int		b;
+
+  a = get_count(elem->name, list);
+  b = 0;
+  while (b != s->nb_nodes)
+    {
+      elem_tmp = get_node(g, list, b);
+      if (g->links[a][b] > 0 && (get_nb_links(g, b) > 1 || elem->status == 2) && elem_tmp->free)
+	{
+	  save = b;
+	  elem->free = 0;
+	  return (get_node(g, list, b));
+	}
+      b += 1;
+    }
+}
+
+void		re_free(t_info *s, t_nodes *list)
+{
+  t_nodes	*elem;
+  int		a;
+
+  elem = list;
+  a = 0;
+  while (a != s->nb_nodes)
+    {
+      elem->free = 1;
+      elem = elem->next;
+      a += 1;
+    }
+}
+
+void		lem_in(t_info *s, t_graph *g, t_nodes *list)
+{
+  int		stop;
+  t_nodes	*elem;
+
+  stop = 1;
+  s->elem_ent = look_for_name_entry(list);
+  elem = s->elem_ent;
+  g->entry = s->elem_ent->name;
+  s->elem_ext = look_for_name_exit(list);
+  g->exit = s->elem_ext->name;
+  my_printf("%s\n", elem->name);
+  while (stop)
+    {
+      elem = parcours_graph(s, g, list, elem);
+      look_path(s, g, list, -1);
+      re_free(s, list);
+      if (/*check_finish(g, list, get_count(g->entry, list))*/elem->status == 2)
+	stop = 0;
+      my_printf("%s\n", elem->name);
+    }
+}

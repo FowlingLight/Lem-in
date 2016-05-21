@@ -1,0 +1,238 @@
+/*
+** lem_in.c for lem_in in /home/b3nja13/Documents/svn/prog_elem/lem-in-2017-horiot_b
+** 
+** Made by benjamin horiot
+** Login   <horiot_b@epitech.net>
+** 
+** Started on  Thu Apr 11 12:58:35 2013 benjamin horiot
+** Last update Fri Apr 26 11:10:22 2013 benjamin horiot
+*/
+
+#include "my.h"
+
+t_nodes		*look_for_name_entry(t_nodes *list)
+{
+  t_nodes	*elem;
+
+  elem = list;
+  while (elem != NULL)
+    {
+      if (elem->status == 1)
+	return (elem);
+      elem = elem->next;
+    }
+}
+
+t_nodes		*look_for_name_exit(t_nodes *list)
+{
+  t_nodes	*elem;
+
+  elem = list;
+  while (elem != NULL)
+    {
+      if (elem->status == 2)
+	return (elem);
+      elem = elem->next;
+    }
+}
+
+t_nodes		*get_node(t_nodes *list, int a)
+{
+  int		b;
+  t_nodes	*elem;
+
+  elem = list;
+  b = 0;
+  while (b != a)
+    {
+      elem = elem->next;
+      b += 1;
+    }
+  return (elem);
+}
+
+int		check_done(t_graph *g, int b)
+{
+  int		a;
+
+  a = 0;
+  while (g->done[a] != -1)
+    if (g->done[a++] == b)
+      return (0);
+  return (1);
+}
+
+int		check_to_do(t_graph *g, int b)
+{
+  int		a;
+
+  a = 0;
+  while (g->to_do[a] != -1)
+    if (g->to_do[a++] == b)
+      return (0);
+  return (1);
+}
+
+int		parcours_graph(t_info *s, t_graph *g, t_nodes *list, t_nodes *elem)
+{
+  t_nodes	*elem_tmp;
+  int		a;
+  int		b;
+
+  a = get_count(elem->name, list, s->nb_nodes);
+  b = 0;
+  while (b != s->nb_nodes)
+    {
+      elem_tmp = get_node(list, b);
+      if (elem_tmp->status == 2 && g->links[a][b] > 0)
+	return (1);
+      else if (g->links[a][b] > 0 && check_done(g, b))
+	g->to_do[g->count_to_do++] = b;
+      b += 1;
+    }
+  g->to_do[g->count_to_do] = -1;
+  return (0);
+}
+
+void		decal(t_graph *g)
+{
+  int		a;
+
+  a = 0;
+  while (g->to_do[a + 1] != -1 && g->to_do[0] != -1)
+    {
+      g->to_do[a] = g->to_do[a + 1];
+      a += 1;
+    }
+  g->to_do[a] = -1;
+}
+
+void		free_0(t_nodes *list, int len)
+{
+  int		a;
+  t_nodes	*elem;
+
+  a = 0;
+  elem = list;
+  while (a != len)
+    {
+      a += 1;
+      elem->free = 0;
+      elem = elem->next;
+    }
+}
+
+int		shock_wave(t_info *s, t_graph *g, t_nodes *list, t_nodes *elem)
+{
+  t_nodes	*elem_tmp;
+  int		a;
+  int		b;
+
+  a = get_count(elem->name, list, s->nb_nodes);
+  b = 0;
+  while (b != s->nb_nodes)
+    {
+      elem_tmp = get_node(list, b);
+      if (elem_tmp->status == 1 && g->links[a][b] > 0)
+        return (1);
+      else if (g->links[a][b] > 0 && check_done(g, b) && check_to_do(g, b))
+        g->to_do[g->count_to_do++] = b;
+      b += 1;
+    }
+  if (my_strcmp(elem->name, s->elem_ext->name))
+    g->to_do[g->count_to_do++] = -2;
+  g->to_do[g->count_to_do] = -1;
+  return (0);
+}
+
+t_nodes		*search_min(t_info *s, t_graph *g, t_nodes *list, t_nodes *elem)
+{
+  int		a;
+  int		b;
+  t_nodes	*elem_tmp;
+
+  a = get_count(elem->name, list, s->nb_nodes);
+  b = 0;
+  while (b != s->nb_nodes)
+    {
+      elem_tmp = get_node(list, b);
+      if (g->links[a][b] > 0 && elem_tmp->free == (elem->free - 1))
+	{
+	  look_path(s, g, list, b);
+	  return (elem_tmp);
+	}
+      b += 1;
+    }
+}
+
+void		find_path(t_info *s, t_graph *g, t_nodes *list)
+{
+  t_nodes	*elem;
+  int		a;
+
+  a = 0;
+  elem = s->elem_ent;
+  while (elem->free != 0)
+    elem = search_min(s, g, list, elem);
+  look_path(s, g, list, -1);
+  init_ants(s, g, list);
+  /* while (g->paths[a] != -1) */
+  /*   my_printf("%d ", g->paths[a++]); */
+  /* my_putchar('\n'); */
+}
+
+void		res_graph(t_info *s, t_graph *g, t_nodes *list)
+{
+  t_nodes	*elem;
+  int		a;
+
+  a = 1;
+  elem = s->elem_ext;
+  while (my_strcmp(elem->name, s->elem_ent->name) == 0)
+    {
+      if (check_done(g, get_count(elem->name, list, s->nb_nodes)))
+	{
+	  g->done[g->count_done++] = get_count(elem->name, list, s->nb_nodes);
+	  g->done[g->count_done] = -1;
+	}
+      if (shock_wave(s, g, list, elem))
+	elem = s->elem_ent;
+      else
+	{
+	  if (g->to_do[0] == -2)
+	    {
+	      g->to_do[g->count_to_do++] = -2;
+	      while (g->to_do[0] == -2)
+		{
+		  decal(g);
+		  g->count_to_do -= 1;
+		}
+	      a += 1;
+	    }
+	  g->to_do[g->count_to_do] = -1;
+	  elem = get_node(list, g->to_do[0]);
+	  decal(g);
+	  g->count_to_do -= 1;
+	  if (a < elem->free || elem->free == 0)
+	    elem->free = a;
+	}
+    }
+  my_showlist(s, list);
+  s->elem_ent->free = a + 1;
+  s->elem_ext->free = 0;
+  find_path(s, g, list);
+}
+
+void		lem_in(t_info *s, t_graph *g, t_nodes *list)
+{
+  s->elem_ent = look_for_name_entry(list);
+  g->entry = s->elem_ent->name;
+  s->elem_ext = look_for_name_exit(list);
+  g->exit = s->elem_ext->name;
+  g->count_done = 0;
+  g->count_to_do = 1;
+  free_0(list, s->nb_nodes);
+  g->to_do[0] = get_count(s->elem_ext->name, list, s->nb_nodes);
+  g->to_do[1] = -1;
+  res_graph(s, g, list);
+}

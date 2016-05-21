@@ -1,0 +1,85 @@
+/*
+** my.h for my in /home/b3nja13/Documents/svn/prog_elem/lem_in
+** 
+** Made by benjamin horiot
+** Login   <horiot_b@epitech.net>
+** 
+** Started on  Tue Apr  2 15:58:50 2013 benjamin horiot
+** Last update Mon Apr 15 11:05:35 2013 serge laguerre
+*/
+
+#ifndef MY_H_
+# define MY_H_
+
+# include <stdlib.h>
+# include <math.h>
+
+typedef struct s_info
+{
+  int			nb_fourmis;
+  int			nb_nodes;
+  char			buff[4097];
+  char			line[200];
+  char			tmp[200];
+  int			len;
+  struct s_nodes	*elem_ent;
+  struct s_nodes	*elem_ext;
+} t_info;
+
+typedef struct s_graph
+{
+  int			**links;
+  char			*entry;
+  char			*exit;
+} t_graph;
+
+typedef struct s_paths
+{
+  int		**paths;
+}t_paths;
+
+typedef struct s_nodes
+{
+  char			*name;
+  int			status;
+  int			x;
+  int			y;
+  int			free;
+  struct s_nodes	*next;
+} t_nodes;
+
+
+
+/* aff.c */
+void		my_puttab(int **, int);
+void		end_link(t_info *, t_graph *);
+void		my_showlist(t_info *, t_nodes *);
+
+
+/* get_graph.c */
+int		det_type(char *);
+int		remp_tmp(t_info *, int);
+void		get_nodes(t_info *, t_nodes **, int);
+void		my_get_graph(t_info *, t_graph *, t_nodes *);
+
+
+/* get_graph2.c */
+void		remp_tab_links(t_info *, t_graph *);
+t_nodes		*get_elem(char *, t_nodes *);
+int		get_count(char *, t_nodes *);
+void		get_linl(t_info *, t_graph *, t_nodes *);
+
+
+/* init.c */
+int		my_get_next_line(t_info *, int);
+void		my_malloc_all(t_info *, t_graph *);
+void		count_nodes(t_info *);
+void		main();
+
+
+/* lem_in.c */
+t_nodes		*look_for_name_entry(t_nodes *);
+t_nodes		*look_for_name_exit(t_nodes *);
+void		len_in(t_info *, t_graph *, t_nodes *);
+
+#endif /* !MY_H_ */

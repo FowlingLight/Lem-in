@@ -1,0 +1,92 @@
+/*
+** lem_in.c for lem_in in /home/b3nja13/Documents/svn/prog_elem/lem-in-2017-horiot_b
+** 
+** Made by benjamin horiot
+** Login   <horiot_b@epitech.net>
+** 
+** Started on  Thu Apr 11 12:58:35 2013 benjamin horiot
+** Last update Mon Apr 15 11:05:37 2013 serge laguerre
+*/
+
+#include "my.h"
+
+t_nodes		*look_for_name_entry(t_nodes *list)
+{
+  t_nodes	*elem;
+
+  elem = list;
+  while (elem != NULL)
+    {
+      if (elem->status == 1)
+	return (elem);
+      elem = elem->next;
+    }
+}
+
+t_nodes		*look_for_name_exit(t_nodes * list)
+{
+  t_nodes	*elem;
+
+  elem = list;
+  while (elem != NULL)
+    {
+      if (elem->status == 2)
+	return (elem);
+      elem = elem->next;
+    }
+}
+
+t_nodes		*get_node(t_graph *g, t_nodes *list, int a)
+{
+  int		b;
+  t_nodes	*elem;
+
+  elem = list;
+  b = 0;
+  while (b != a)
+    {
+      elem = elem->next;
+      b += 1;
+    }
+  return (elem);
+}
+
+void		parcours_graph(t_info *s, t_graph *g, t_nodes *list)
+{
+  t_paths	*path;
+  t_nodes	*elem;
+  int		dist;
+  int		save;
+  int		a;
+  int		b;
+
+  dist = 10000000;
+  a = get_count(s->elem_ent->name, list);
+  b = 0;
+  while (b != s->nb_nodes)
+    {
+      if (g->links[a][b] < dist && g->links[a][b])
+	{
+	  save = b;
+	  dist = g->links[a][b];
+	}
+      b += 1;
+    }
+  elem = get_node(g, list, save);
+}
+
+void		lem_in(t_info *s, t_graph *g, t_nodes *list)
+{
+  int		stop;
+
+  s->elem_ent = look_for_name_entry(list);
+  g->entry = s->elem_ent->name;
+  s->elem_ext = look_for_name_exit(list);
+  g->exit = s->elem_ext->name;
+  //parcours_graph(s, g, list);
+  //stop = 1;
+  /*while (stop)
+    {
+
+    }*/
+}

@@ -1,0 +1,17 @@
+Lanch the program using './lem-in < file'
+
+The program will diplay the file used and show the path by moving ants on it. Each node can only contain one ant, so the ouptup will be P1-2, saying that an ant is moving from the node 1 to the node 2
+
+You can create a graph using the following format:
+number_of_ants
+node1 x y
+##start //stating that the following node is the start of the graph
+node2 x y
+#comment
+##end
+node3 x y //stating that the following node is the end of the graph
+node1-node2 //indicating a connection between these nodes
+node2-node3
+
+To put a comment in the file, you need to use #, not //
+The // are only used here to add additionnal information
